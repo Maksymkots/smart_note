@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QApplication
-from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtWidgets import QMainWindow, QMessageBox
 from ui import Ui_MainWindow
 
 import json
@@ -15,6 +15,10 @@ class NoteWindow(QMainWindow):
 
     def connects(self):
         self.ui.note_list.itemClicked.connect(self.show_note)
+        self.ui.new_note_btn.clicked.connect(self.add_note)
+        self.ui.save_note_btn.clicked.connect(self.save_note)
+        self.ui.delete_note_btn.clicked.connect(self.del_note)
+
 
         
 
@@ -28,6 +32,8 @@ class NoteWindow(QMainWindow):
                 }}
         self.ui.note_list.addItems(self.notes)
 
+    
+
     def show_note(self):
         name = self.ui.note_list.selectedItems()[0].text()
         self.ui.note_title.setText(name)
@@ -35,8 +41,40 @@ class NoteWindow(QMainWindow):
         self.ui.teg_list.clear()
         self.ui.teg_list.addItems(self.notes[name]["теги"])
 
+    def add_note(self):
+        self.ui.note_title.clear()
+        self.ui.note_text.clear()
+        self.ui.teg_list.clear()
+
+    def save_file(self):
+        try:
+            with open("notes.json","w",encoding="utf-8") as file:
+                json.dump(self.notes, file, ensure_ascii=False)
+        except:
+            message = QMessageBox()
+            message.setText("Не вдалось знайти")
+            message.exec_()
 
 
+
+
+    def save_note(self):
+        title = self.ui.note_title.text()
+        text = self.ui.note_text.toPlainText()
+
+        self.notes[title] = {"текст": text, "теги":[]}
+        self.save_file()
+        self.ui.note_list.clear()
+        self.ui.note_list.addItems(self.notes)
+
+    def del_note(self):
+        title = self.ui.note_title.text()
+        if title in self.notes:
+            del self.notes[title]
+            self.ui.note_list.clear()
+            self.ui.note_list.addItems(self.notes)
+            self.save_file()
+            self.add_note()
 
 
 
