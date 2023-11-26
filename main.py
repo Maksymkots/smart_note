@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QApplication
-from PyQt5.QtWidgets import QMainWindow, QMessageBox
+from PyQt5.QtWidgets import QMainWindow, QMessageBox , QInputDialog
 from ui import Ui_MainWindow
 
 import json
@@ -18,6 +18,8 @@ class NoteWindow(QMainWindow):
         self.ui.new_note_btn.clicked.connect(self.add_note)
         self.ui.save_note_btn.clicked.connect(self.save_note)
         self.ui.delete_note_btn.clicked.connect(self.del_note)
+        self.ui.add_tag_btn.clicked.connect(self.add_tag)
+        self.ui.del_teg_btn.clicked.connect(self.del_teg)
 
 
         
@@ -61,8 +63,10 @@ class NoteWindow(QMainWindow):
     def save_note(self):
         title = self.ui.note_title.text()
         text = self.ui.note_text.toPlainText()
-
-        self.notes[title] = {"текст": text, "теги":[]}
+        if title not in self.notes:
+            self.notes[title] = {"текст": text, "теги":[]}
+        else:
+            self.notes[title]["текст"] = text
         self.save_file()
         self.ui.note_list.clear()
         self.ui.note_list.addItems(self.notes)
@@ -75,6 +79,28 @@ class NoteWindow(QMainWindow):
             self.ui.note_list.addItems(self.notes)
             self.save_file()
             self.add_note()
+
+
+    def add_tag(self):
+        title = self.ui.note_title.text()
+        teg_title, ok = QInputDialog.getText(self, "Введіть тег ")
+        if ok and teg_title != "" and title!= "":
+            self.notes[title]["теги"].append(tag_title)
+            self.ui.teg_list.clear()
+            self.ui.teg_list.addItems(self.notes[title]["теги"])
+
+
+    def del_teg(self):
+        title = self.ui.note_title.text()
+        try:
+            tag_title = self.ui.teg_listQInputDialog.getText(self, "Введіть тег ")
+        except:
+            teg_title = None
+        if  tag_title and title!= "":
+            self.notes[title]["теги"].remove(tag_title)
+            self.ui.teg_list.clear()
+            self.ui.teg_list.addItems(self.notes[title]["теги"])
+
 
 
 
